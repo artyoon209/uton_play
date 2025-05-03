@@ -6,27 +6,41 @@ let osc;
 let selectedColor = null;
 
 function setup() {
-  let cnv = createCanvas(windowWidth, windowHeight);
-  cnv.mousePressed(canvasClicked);
+  createCanvas(windowWidth, windowHeight);
   background(0);
   noFill();
   strokeWeight(2);
-
-  // 오실레이터 미리 생성
-  osc = new p5.Oscillator('triangle');
-  osc.start();
-  osc.amp(0);
 }
 
-function canvasClicked() {
-  getAudioContext().resume(); // Chrome 호환용
+function draw() {
+  background(0);
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].update(dots);
+    dots[i].display();
+  }
+}
 
-  let freq = random(100, 104);
-  osc.freq(freq);
-  osc.amp(0.2, 0.05);
-  setTimeout(() => {
-    osc.amp(0, 0.3);
-  }, 200);
+function mousePressed() {
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+  getAudioContext().resume();
+  try {
+    if (!osc) {
+      osc = new p5.Oscillator();
+      osc.setType('triangle');
+      osc.start();
+      osc.amp(0);
+    }
+
+    let freq = random(100, 104);
+    let dur = 0.2;
+    osc.freq(freq);
+    osc.amp(0.2, 0.05);
+    setTimeout(() => {
+      osc.amp(0, 0.3);
+    }, dur * 1000);
+  } catch (e) {
+    console.warn("Audio resume failed", e);
+  }
 
   let inside = dots.some(dot => dist(mouseX, mouseY, dot.pos.x, dot.pos.y) < dot.radius);
   if (!inside) dots.push(new Dot(mouseX, mouseY));
@@ -37,7 +51,6 @@ function setColor(hex, btn) {
   document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 }
-window.setColor = setColor;
 
 class Dot {
   constructor(x, y) {

@@ -8,25 +8,26 @@
   <style>
     body { margin: 0; overflow: hidden; background: black; }
     canvas { display: block; }
+
     #colorPalette {
       position: absolute;
       top: 10px;
       left: 10px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       z-index: 10;
-      max-width: 240px;
     }
+
     .color-btn {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       border: 2px solid white;
       cursor: pointer;
       outline: none;
       transition: transform 0.1s;
     }
+
     .color-btn.selected {
       border: 3px solid yellow;
       transform: scale(1.2);
@@ -35,18 +36,10 @@
 </head>
 <body>
   <div id="colorPalette">
-    <button class="color-btn" style="background-color: #FF0000;" onclick="setColor('#FF0000', this)"></button>
-<button class="color-btn" style="background-color: #FF7F00;" onclick="setColor('#FF7F00', this)"></button>
-<button class="color-btn" style="background-color: #FFFF00;" onclick="setColor('#FFFF00', this)"></button>
-<button class="color-btn" style="background-color: #7FFF00;" onclick="setColor('#7FFF00', this)"></button>
-<button class="color-btn" style="background-color: #00FF00;" onclick="setColor('#00FF00', this)"></button>
-<button class="color-btn" style="background-color: #00FF7F;" onclick="setColor('#00FF7F', this)"></button>
-<button class="color-btn" style="background-color: #00FFFF;" onclick="setColor('#00FFFF', this)"></button>
-<button class="color-btn" style="background-color: #007FFF;" onclick="setColor('#007FFF', this)"></button>
-<button class="color-btn" style="background-color: #0000FF;" onclick="setColor('#0000FF', this)"></button>
-<button class="color-btn" style="background-color: #7F00FF;" onclick="setColor('#7F00FF', this)"></button>
-<button class="color-btn" style="background-color: #FF00FF;" onclick="setColor('#FF00FF', this)"></button>
-<button class="color-btn" style="background-color: #FF007F;" onclick="setColor('#FF007F', this)"></button>
+    <button class="color-btn" style="background-color: #ff6464;" onclick="setColor('#ff6464', this)"></button>
+    <button class="color-btn" style="background-color: #ffa8a8;" onclick="setColor('#ffa8a8', this)"></button>
+    <button class="color-btn" style="background-color: #6496ff;" onclick="setColor('#6496ff', this)"></button>
+    <button class="color-btn" style="background-color: #b4d2ff;" onclick="setColor('#b4d2ff', this)"></button>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
