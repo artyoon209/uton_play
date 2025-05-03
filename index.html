@@ -2,38 +2,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Color Sound Interaction</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>반응형 드로잉</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: black; }
-    #uiContainer {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      z-index: 10;
-      color: white;
-      font-family: sans-serif;
-      font-size: 12px;
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
     }
-    .color-btn {
-      width: 20px;
-      height: 20px;
-      margin: 1px;
+
+    #colorContainer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      padding: 0 10px;
+      z-index: 10;
+    }
+
+    .color-button {
+      flex: 1;
+      height: 40px;
+      margin: 0 4px;
       border: none;
-      display: inline-block;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="uiContainer">
-    <div id="colorContainer"></div>
-    <label>Saturation</label>
-    <input type="range" id="saturationSlider" min="0" max="100" value="100">
-    <label>Brightness</label>
-    <input type="range" id="brightnessSlider" min="0" max="100" value="100">
-  </div>
-  <script src="sketch.js"></script>
+  <div id="colorContainer"></div>
+  <script src="sketch_final_smooth.js"></script>
 </body>
 </html>
