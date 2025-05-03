@@ -32,6 +32,19 @@ function draw() {
 }
 
 function mousePressed() {
+  try {
+    userStartAudio();
+  } catch(e) {
+    console.warn("Audio resume failed", e);
+  }
+
+  if (getAudioContext().state !== 'running') {
+    getAudioContext().resume().then(() => {
+      console.log("Audio resumed");
+    }).catch(err => {
+      console.error("Audio resume error:", err);
+    });
+  }
   for (let dot of dots) {
     let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
     if (d < dot.radius + 6) return;
