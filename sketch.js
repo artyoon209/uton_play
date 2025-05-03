@@ -1,8 +1,8 @@
-// 반응형 선형 원: 성장 → 반응 → 고정 + 밀착 배치 + 클릭 중첩 방지 + 랜덤 크기 + 좁은 틈 클릭 제한
 
 let dots = [];
 let colors;
 let resolution = 36;
+let osc;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -16,6 +16,11 @@ function setup() {
     color(100, 150, 255),
     color(180, 210, 255)
   ];
+
+  osc = new p5.Oscillator();
+  osc.setType('triangle');
+  osc.start();
+  osc.amp(0);
 }
 
 function draw() {
@@ -29,9 +34,17 @@ function draw() {
 function mousePressed() {
   for (let dot of dots) {
     let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
-    if (d < dot.radius + 6) return; // 내부 + 주변 간격 제한 클릭 방지
+    if (d < dot.radius + 6) return;
   }
   dots.push(new Dot(mouseX, mouseY));
+
+  let freq = random(100, 104);
+  let dur = 0.2;
+  osc.freq(freq);
+  osc.amp(0.2, 0.09);
+  setTimeout(() => {
+    osc.amp(0, 0.5);
+  }, dur * 1000);
 }
 
 class Dot {
