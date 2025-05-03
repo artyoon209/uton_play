@@ -123,3 +123,8 @@ class Dot {
     endShape(CLOSE);
   }
 }
+
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
