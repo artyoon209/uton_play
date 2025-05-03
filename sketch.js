@@ -21,6 +21,7 @@ function draw() {
 }
 
 function mousePressed() {
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
   getAudioContext().resume();
   try {
     if (!osc) {
@@ -30,7 +31,7 @@ function mousePressed() {
       osc.amp(0);
     }
 
-    let freq = random(100, 200);
+    let freq = random(100, 104);
     let dur = 0.2;
     osc.freq(freq);
     osc.amp(0.2, 0.05);
@@ -46,7 +47,6 @@ function mousePressed() {
 }
 
 function setColor(hex, btn) {
-  window.setColor = setColor;
   selectedColor = color(hex);
   document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
