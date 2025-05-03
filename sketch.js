@@ -1,11 +1,9 @@
+// 반응형 선형 원: 성장 → 반응 → 고정 + 더 밀착된 배치 + 클릭 중첩 방지
 
 let dots = [];
 let maxSize = 60;
+let colors;
 let resolution = 36;
-let selectedHue = 0;
-let saturationSlider, brightnessSlider;
-
-let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99]; // 도~높은 솔
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -13,54 +11,29 @@ function setup() {
   noFill();
   strokeWeight(2);
 
-  createColorButtons();
-
-  saturationSlider = select("#saturationSlider");
-  brightnessSlider = select("#brightnessSlider");
-}
-
-function createColorButtons() {
-  let container = select("#colorContainer");
-  for (let i = 0; i < 12; i++) {
-    let btn = createButton("");
-    btn.class("color-btn");
-    btn.style("background-color", color(`hsl(${i * 30}, 100%, 50%)`));
-    btn.mousePressed(() => {
-      selectedHue = i * 30;
-    });
-    btn.parent(container);
-  }
+  colors = [
+    color(255, 100, 100),
+    color(255, 180, 180),
+    color(100, 150, 255),
+    color(180, 210, 255)
+  ];
 }
 
 function draw() {
   background(0);
-  for (let d of dots) {
-    d.update(dots);
-    d.display();
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].update(dots);
+    dots[i].display();
   }
 }
 
 function mousePressed() {
-  if (mouseY < 80) return;
-
-  let dot = new Dot(mouseX, mouseY);
-  dots.push(dot);
-
-  playNote(mouseX);
-}
-
-function playNote(xPos) {
-  let pan = map(xPos, 0, width, -1, 1);
-  let freqIndex = floor(map(xPos, 0, width, 0, notes.length));
-  freqIndex = constrain(freqIndex, 0, notes.length - 1);
-  let freq = notes[freqIndex];
-
-  let osc = new p5.Oscillator("triangle");
-  osc.freq(freq);
-  osc.amp(0.15, 0.05);
-  osc.pan(pan);
-  osc.start();
-  osc.stop(0.3);
+  // 다른 점 안쪽 클릭 방지
+  for (let dot of dots) {
+    let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
+    if (d < dot.radius) return;
+  }
+  dots.push(new Dot(mouseX, mouseY));
 }
 
 class Dot {
@@ -68,10 +41,10 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = random(30, 80);
-    this.growthSpeed = 0.5;
+    this.maxRadius = maxSize;
+    this.growthSpeed = 0.4;
+    this.color = random(colors);
     this.locked = false;
-    this.color = color(`hsb(${selectedHue}, ${saturationSlider.value()}%, ${brightnessSlider.value()}%)`);
     this.shapePoints = [];
   }
 

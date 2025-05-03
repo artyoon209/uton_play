@@ -2,50 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>UTON Color Sound</title>
+    <title>Interactive Shape Reaction</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background: black;
-        color: white;
-        font-family: sans-serif;
-      }
-      #colorContainer {
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        z-index: 10;
-      }
-      .color-btn {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-      }
-      #controls {
-        position: absolute;
-        top: 40px;
-        left: 5px;
-        z-index: 10;
-        color: white;
-      }
+      body { margin: 0; background: black; overflow: hidden; }
+      canvas { display: block; }
     </style>
   </head>
   <body>
-    <div id="colorContainer"></div>
-    <div id="controls">
-      <label for="saturationSlider">Saturation</label>
-      <input type="range" id="saturationSlider" min="0" max="100" value="100" /><br />
-      <label for="brightnessSlider">Brightness</label>
-      <input type="range" id="brightnessSlider" min="0" max="100" value="100" />
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/addons/p5.sound.min.js"></script>
     <script src="sketch.js"></script>
   </body>
 </html>
