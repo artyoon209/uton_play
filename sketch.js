@@ -1,12 +1,12 @@
-// 반응형 선형 원: 성장 → 반응 → 고정 + 사운드 (위치 기반 주파수: Y축)
-
 let dots = [];
 let maxSize = 60;
 let resolution = 36;
 let selectedHue = 0;
 let saturationSlider, brightnessSlider;
 
-let notes = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00]; // 낮은 도~높은 솔
+let notes = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00]; // 1옥타브 낮춘 도~솔
+
+let reverb;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -15,10 +15,20 @@ function setup() {
   strokeWeight(2);
 
   createColorButtons();
+
+  let ui = select('#ui');
+  saturationSlider = createSlider(0, 100, 100);
+  brightnessSlider = createSlider(0, 100, 100);
+  ui.child(createP("Saturation"));
+  ui.child(saturationSlider);
+  ui.child(createP("Brightness"));
+  ui.child(brightnessSlider);
+
+  reverb = new p5.Reverb();
 }
 
 function createColorButtons() {
-  let container = select("#colorContainer");
+  let container = select('#ui');
   for (let i = 0; i < 12; i++) {
     let btn = createButton("");
     btn.class("color-btn");
@@ -39,24 +49,12 @@ function draw() {
 }
 
 function mousePressed() {
-  if (mouseY < 80) return;
+  if (mouseY < 100) return;
 
   let dot = new Dot(mouseX, mouseY);
   dots.push(dot);
 
   playNote(mouseY);
-}
-
-function touchStarted() {
-  if (touches.length > 0) {
-    let x = touches[0].x;
-    let y = touches[0].y;
-    if (y < 80) return;
-    let dot = new Dot(x, y);
-    dots.push(dot);
-    playNote(y);
-  }
-  return false;
 }
 
 function playNote(yPos) {
@@ -66,15 +64,13 @@ function playNote(yPos) {
   let freq = notes[notes.length - 1 - freqIndex];
 
   let osc = new p5.Oscillator("sine");
-  let reverb = new p5.Reverb();
-  let delay = new p5.Delay();
-
   osc.freq(freq);
-  osc.amp(0.06, 0.1);
+  osc.amp(0.08, 0.2);
+  osc.pan(pan);
+
+  reverb.process(osc, 6, 3);
   osc.start();
-  reverb.process(osc, 3, 2);
-  delay.process(osc, 0.4, 0.5, 2300);
-  osc.stop(1);
+  osc.stop(2.0);
 }
 
 class Dot {
@@ -85,7 +81,7 @@ class Dot {
     this.maxRadius = random(30, 80);
     this.growthSpeed = 0.5;
     this.locked = false;
-    this.color = color(`hsb(${selectedHue}, 100%, 100%)`);
+    this.color = color(`hsb(${selectedHue}, ${saturationSlider.value()}%, ${brightnessSlider.value()}%)`);
     this.shapePoints = [];
   }
 
