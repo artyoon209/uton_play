@@ -1,30 +1,22 @@
+// 반응형 선형 원: 성장 → 반응 → 고정 + 더 밀착된 배치 + 클릭 중첩 방지
 
 let dots = [];
 let maxSize = 60;
+let colors;
 let resolution = 36;
-let selectedColor = null;
-
-let osc;
-let env;
-let delay;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  background(0);
   noFill();
   strokeWeight(2);
 
-  osc = new p5.Oscillator('triangle');
-  env = new p5.Envelope();
-  env.setADSR(0.01, 0.2, 0.2, 0.5);
-  env.setRange(0.1, 0);
-
-  osc.amp(env);
-  osc.start();
-
-  delay = new p5.Delay();
-  delay.process(osc, 0.3, 0.4, 2000); // 딜레이 유지
-
-  createPalette();
+  colors = [
+    color(255, 100, 100),
+    color(255, 180, 180),
+    color(100, 150, 255),
+    color(180, 210, 255)
+  ];
 }
 
 function draw() {
@@ -36,46 +28,12 @@ function draw() {
 }
 
 function mousePressed() {
-  if (mouseY < 40) return;
-
-  getAudioContext().resume();
-
-  let panValue = map(mouseX, 0, width, -1, 1);
-  let freqValue = map(mouseY, 0, height, 300, 100);
-
-  osc.pan(panValue);   // ✅ 진짜 되는 코드
-  osc.freq(freqValue);
-  env.play();
-
-  let inside = dots.some(dot => dist(mouseX, mouseY, dot.pos.x, dot.pos.y) < dot.radius);
-  if (!inside) dots.push(new Dot(mouseX, mouseY));
-}
-
-function createPalette() {
-  let colors = [
-    "#FF0000", "#FF7F00", "#FFFF00", "#7FFF00",
-    "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
-    "#0000FF", "#7F00FF", "#FF00FF", "#FF007F"
-  ];
-
-  for (let i = 0; i < colors.length; i++) {
-    let btn = createButton('');
-    btn.position(10 + i * 34, 5);
-    btn.size(28, 28);
-    btn.style('background-color', colors[i]);
-    btn.style('border-radius', '50%');
-    btn.style('border', '2px solid white');
-    btn.mousePressed(() => {
-      selectedColor = color(colors[i]);
-      document.querySelectorAll('button').forEach(b => b.style.border = '2px solid white');
-      btn.style('border', '3px solid yellow');
-    });
-
-    if (i === 0) {
-      selectedColor = color(colors[i]);
-      btn.style('border', '3px solid yellow');
-    }
+  // 다른 점 안쪽 클릭 방지
+  for (let dot of dots) {
+    let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
+    if (d < dot.radius) return;
   }
+  dots.push(new Dot(mouseX, mouseY));
 }
 
 class Dot {
@@ -83,15 +41,16 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = random(30, maxSize);
+    this.maxRadius = maxSize;
     this.growthSpeed = 0.4;
-    this.color = selectedColor || color(255);
+    this.color = random(colors);
     this.locked = false;
     this.shapePoints = [];
   }
 
   update(others) {
     if (this.locked) return;
+
     let canGrow = true;
     for (let other of others) {
       if (other === this) continue;
@@ -101,6 +60,7 @@ class Dot {
         break;
       }
     }
+
     if (canGrow && this.radius < this.maxRadius) {
       this.radius += this.growthSpeed;
     } else {
@@ -113,7 +73,10 @@ class Dot {
     this.shapePoints = [];
     for (let i = 0; i <= resolution; i++) {
       let angle = TWO_PI * i / resolution;
-      let x = cos(angle), y = sin(angle), r = this.radius;
+      let x = cos(angle);
+      let y = sin(angle);
+      let r = this.radius;
+
       for (let other of dots) {
         if (other === this) continue;
         let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -122,7 +85,10 @@ class Dot {
           r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
         }
       }
-      this.shapePoints.push(createVector(this.pos.x + x * r, this.pos.y + y * r));
+
+      let vx = this.pos.x + x * r;
+      let vy = this.pos.y + y * r;
+      this.shapePoints.push(createVector(vx, vy));
     }
   }
 
@@ -130,11 +96,16 @@ class Dot {
     stroke(this.color);
     beginShape();
     if (this.locked && this.shapePoints.length > 0) {
-      for (let pt of this.shapePoints) curveVertex(pt.x, pt.y);
+      for (let pt of this.shapePoints) {
+        curveVertex(pt.x, pt.y);
+      }
     } else {
       for (let i = 0; i <= resolution; i++) {
         let angle = TWO_PI * i / resolution;
-        let x = cos(angle), y = sin(angle), r = this.radius;
+        let x = cos(angle);
+        let y = sin(angle);
+        let r = this.radius;
+
         for (let other of dots) {
           if (other === this) continue;
           let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -143,7 +114,10 @@ class Dot {
             r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
           }
         }
-        curveVertex(this.pos.x + x * r, this.pos.y + y * r);
+
+        let vx = this.pos.x + x * r;
+        let vy = this.pos.y + y * r;
+        curveVertex(vx, vy);
       }
     }
     endShape(CLOSE);
