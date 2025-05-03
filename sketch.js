@@ -46,6 +46,7 @@ function mousePressed() {
 }
 
 function setColor(hex, btn) {
+  window.setColor = setColor;
   selectedColor = color(hex);
   document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
