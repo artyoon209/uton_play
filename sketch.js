@@ -1,37 +1,40 @@
-// 반응형 선형 원: 성장 → 반응 → 고정 + 밀착 배치 + 클릭 중첩 방지 + 랜덤 크기 + 좁은 틈 클릭 제한
 
 let dots = [];
-let colors;
+let maxSize = 60;
 let resolution = 36;
+
+let hues = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
+let selectedHue = 0;
+let selectedSaturation = 100;
+let selectedBrightness = 100;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(0);
+  colorMode(HSB, 360, 100, 100);
   noFill();
   strokeWeight(2);
-
-  colors = [
-    color(255, 100, 100),
-    color(255, 180, 180),
-    color(100, 150, 255),
-    color(180, 210, 255)
-  ];
+  setupUI();
 }
 
 function draw() {
   background(0);
-  for (let i = 0; i < dots.length; i++) {
-    dots[i].update(dots);
-    dots[i].display();
+  for (let dot of dots) {
+    dot.update(dots);
+    dot.display();
   }
 }
 
 function mousePressed() {
+  // UI 영역 클릭 방지
+  if (mouseY < 100) return;
+
+  let newDot = new Dot(mouseX, mouseY);
+  let overlapping = false;
   for (let dot of dots) {
-    let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
-    if (d < dot.radius + 6) return; // 내부 + 주변 간격 제한 클릭 방지
+    let d = dist(dot.pos.x, dot.pos.y, newDot.pos.x, newDot.pos.y);
+    if (d < dot.radius + 5) overlapping = true;
   }
-  dots.push(new Dot(mouseX, mouseY));
+  if (!overlapping) dots.push(newDot);
 }
 
 class Dot {
@@ -39,16 +42,27 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.targetRadius = random(20, 60);
+    this.maxRadius = random(20, maxSize);
     this.growthSpeed = 0.4;
-    this.color = random(colors);
+    this.color = color(selectedHue, selectedSaturation, selectedBrightness);
     this.locked = false;
     this.shapePoints = [];
+
+    // 위치에 따른 주파수 계산
+    this.freq = map(this.pos.y, 0, height, 600, 200); // 위에서 아래로 갈수록 낮은음
+    this.osc = new p5.Oscillator("sine");
+    this.osc.freq(this.freq);
+    this.osc.amp(0);
+    this.osc.start();
+
+    let pan = map(this.pos.x, 0, width, -1, 1);
+    this.osc.pan(pan);
+    this.osc.amp(0.2, 0.05);
+    setTimeout(() => this.osc.amp(0, 0.5), 200);
   }
 
   update(others) {
     if (this.locked) return;
-
     let canGrow = true;
     for (let other of others) {
       if (other === this) continue;
@@ -59,7 +73,7 @@ class Dot {
       }
     }
 
-    if (canGrow && this.radius < this.targetRadius) {
+    if (canGrow && this.radius < this.maxRadius) {
       this.radius += this.growthSpeed;
     } else {
       this.locked = true;
@@ -74,7 +88,6 @@ class Dot {
       let x = cos(angle);
       let y = sin(angle);
       let r = this.radius;
-
       for (let other of dots) {
         if (other === this) continue;
         let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -83,7 +96,6 @@ class Dot {
           r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
         }
       }
-
       let vx = this.pos.x + x * r;
       let vy = this.pos.y + y * r;
       this.shapePoints.push(createVector(vx, vy));
@@ -94,16 +106,13 @@ class Dot {
     stroke(this.color);
     beginShape();
     if (this.locked && this.shapePoints.length > 0) {
-      for (let pt of this.shapePoints) {
-        curveVertex(pt.x, pt.y);
-      }
+      for (let pt of this.shapePoints) curveVertex(pt.x, pt.y);
     } else {
       for (let i = 0; i <= resolution; i++) {
         let angle = TWO_PI * i / resolution;
         let x = cos(angle);
         let y = sin(angle);
         let r = this.radius;
-
         for (let other of dots) {
           if (other === this) continue;
           let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -112,7 +121,6 @@ class Dot {
             r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
           }
         }
-
         let vx = this.pos.x + x * r;
         let vy = this.pos.y + y * r;
         curveVertex(vx, vy);
@@ -122,6 +130,29 @@ class Dot {
   }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+function setupUI() {
+  let palette = createDiv().style('display', 'flex').style('gap', '4px').style('padding', '5px');
+  palette.position(10, 10);
+  for (let i = 0; i < hues.length; i++) {
+    let btn = createButton(' ');
+    btn.style('width', '24px');
+    btn.style('height', '24px');
+    btn.style('border-radius', '50%');
+    btn.style('border', 'none');
+    btn.style('background-color', color(hues[i], 100, 100));
+    btn.mousePressed(() => selectedHue = hues[i]);
+    palette.child(btn);
+  }
+  let sliders = createDiv().style('padding', '6px');
+  sliders.position(10, 50);
+
+  createDiv('Saturation').style('color', '#fff').parent(sliders);
+  let sat = createSlider(10, 100, 100);
+  sat.input(() => selectedSaturation = sat.value());
+  sliders.child(sat);
+
+  createDiv('Brightness').style('color', '#fff').parent(sliders);
+  let bri = createSlider(10, 100, 100);
+  bri.input(() => selectedBrightness = bri.value());
+  sliders.child(bri);
 }
