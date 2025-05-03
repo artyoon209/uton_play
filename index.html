@@ -3,53 +3,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Reactive Drawing with Sound</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background: black;
-      }
-      .color-button {
-        width: 24px;
-        height: 24px;
-        border: none;
-        margin: 2px;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      .ui-container {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .slider-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: white;
-        font-size: 12px;
-      }
-    </style>
+    <title>Uton Pan Final</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.0/addons/p5.sound.min.js"></script>
   </head>
   <body>
-    <div class="ui-container">
-      <div id="color-picker"></div>
-      <div class="slider-container">
-        <label for="satSlider">Saturation</label>
-        <input type="range" id="satSlider" min="0" max="100" value="80" />
-      </div>
-      <div class="slider-container">
-        <label for="briSlider">Brightness</label>
-        <input type="range" id="briSlider" min="0" max="100" value="80" />
-      </div>
-    </div>
     <script src="sketch.js"></script>
   </body>
 </html>
