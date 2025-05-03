@@ -58,17 +58,10 @@ function playNote(yPos, xPos) {
   
   let osc = new p5.Oscillator("sine");
   osc.freq(freq);
-  osc.amp(0.08, 0.1);
+  osc.amp(0.05, 0.05);
   osc.pan(pan);
-
-  let delay = new p5.Delay();
-  delay.process(osc, 0.5, 0.3, 2300); // 딜레이(지연시간, 피드백, 커팅)
-  
-  let reverb = new p5.Reverb();
-  reverb.process(osc, 4, 2); // 리버브(지속시간, 감쇠)
-
   osc.start();
-  osc.stop(1.5);
+  osc.stop(0.4);
 
 }
 
