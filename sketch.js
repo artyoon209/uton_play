@@ -43,7 +43,21 @@ function mousePressed() {
   playNote(mouseY, mouseX);
 }
 
+
 function touchStarted() {
+  getAudioContext().resume();
+
+  let tx = touches[0]?.x || mouseX;
+  let ty = touches[0]?.y || mouseY;
+
+  if (ty < 80 || isInsideExistingDot(tx, ty)) return false;
+
+  let dot = new Dot(tx, ty);
+  dots.push(dot);
+  playNote(ty, tx);
+
+  return false;
+}
   if (touchY < 80 || isInsideExistingDot(touchX, touchY)) return;
   let dot = new Dot(touchX, touchY);
   dots.push(dot);
@@ -58,10 +72,17 @@ function playNote(yPos, xPos) {
   
   let osc = new p5.Oscillator("sine");
   osc.freq(freq);
-  osc.amp(0.05, 0.05);
+  osc.amp(0.08, 0.1);
   osc.pan(pan);
+
+  let delay = new p5.Delay();
+  delay.process(osc, 0.5, 0.3, 2300); // 딜레이(지연시간, 피드백, 커팅)
+  
+  let reverb = new p5.Reverb();
+  reverb.process(osc, 4, 2); // 리버브(지속시간, 감쇠)
+
   osc.start();
-  osc.stop(0.4);
+  osc.stop(1.5);
 
 }
 

@@ -3,32 +3,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Color Sound Reaction</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/addons/p5.sound.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: black; }
-    .color-btn {
-      width: 24px; height: 24px;
-      border: none; margin: 2px; border-radius: 50%;
-      display: inline-block; cursor: pointer;
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+      touch-action: none;
+      pointer-events: auto !important;
     }
     #colorContainer {
-      position: absolute; top: 10px; left: 10px; z-index: 10;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      z-index: 10;
     }
-    #sliders {
-      position: absolute; top: 40px; left: 10px; z-index: 10; color: white;
-      font-family: sans-serif; font-size: 12px;
+    .color-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      touch-action: none;
+    }
+    #saturationSlider, #brightnessSlider {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      z-index: 10;
+    }
+    #brightnessSlider {
+      top: 50px;
+    }
+    label {
+      position: fixed;
+      right: 120px;
+      color: white;
+      font-size: 12px;
+      z-index: 10;
+    }
+    #satLabel {
+      top: 10px;
+    }
+    #brightLabel {
+      top: 50px;
     }
   </style>
 </head>
 <body>
   <div id="colorContainer"></div>
-  <div id="sliders">
-    <label>Saturation <input type="range" id="saturationSlider" min="0" max="100" value="100"/></label><br/>
-    <label>Brightness <input type="range" id="brightnessSlider" min="0" max="100" value="100"/></label>
-  </div>
-  <script src="sketch.js?v=mobile"></script>
+  <label id="satLabel">Saturation</label>
+  <input type="range" id="saturationSlider" min="0" max="100" value="100" />
+  <label id="brightLabel">Brightness</label>
+  <input type="range" id="brightnessSlider" min="0" max="100" value="50" />
+  <script src="sketch.js?v=final"></script>
 </body>
 </html>
