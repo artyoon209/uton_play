@@ -2,65 +2,80 @@
 let dots = [];
 let maxSize = 60;
 let resolution = 36;
-let selectedHue = 0;
-let saturationSlider, brightnessSlider;
+let selectedColor = null;
 
-let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99]; // 도~높은 솔
+let osc;
+let env;
+let delay;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(0);
   noFill();
   strokeWeight(2);
 
-  createColorButtons();
+  osc = new p5.Oscillator('triangle');
+  env = new p5.Envelope();
+  env.setADSR(0.01, 0.2, 0.2, 0.5);
+  env.setRange(0.1, 0);
 
-  saturationSlider = select("#saturationSlider");
-  brightnessSlider = select("#brightnessSlider");
-}
+  osc.amp(env);
+  osc.start();
 
-function createColorButtons() {
-  let container = select("#colorContainer");
-  for (let i = 0; i < 12; i++) {
-    let btn = createButton("");
-    btn.class("color-btn");
-    btn.style("background-color", color(`hsl(${i * 30}, 100%, 50%)`));
-    btn.mousePressed(() => {
-      selectedHue = i * 30;
-    });
-    btn.parent(container);
-  }
+  delay = new p5.Delay();
+  delay.process(osc, 0.3, 0.4, 2000); // 딜레이 유지
+
+  createPalette();
 }
 
 function draw() {
   background(0);
-  for (let d of dots) {
-    d.update(dots);
-    d.display();
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].update(dots);
+    dots[i].display();
   }
 }
 
 function mousePressed() {
-  if (mouseY < 80) return;
+  if (mouseY < 40) return;
 
-  let dot = new Dot(mouseX, mouseY);
-  dots.push(dot);
+  getAudioContext().resume();
 
-  playNote(mouseX);
+  let panValue = map(mouseX, 0, width, -1, 1);
+  let freqValue = map(mouseY, 0, height, 300, 100);
+
+  osc.pan(panValue);   // ✅ 진짜 되는 코드
+  osc.freq(freqValue);
+  env.play();
+
+  let inside = dots.some(dot => dist(mouseX, mouseY, dot.pos.x, dot.pos.y) < dot.radius);
+  if (!inside) dots.push(new Dot(mouseX, mouseY));
 }
 
-function playNote(xPos) {
-  let pan = map(xPos, 0, width, -1, 1);
-  let freqIndex = floor(map(xPos, 0, width, 0, notes.length));
-  freqIndex = constrain(freqIndex, 0, notes.length - 1);
-  let freq = notes[freqIndex];
+function createPalette() {
+  let colors = [
+    "#FF0000", "#FF7F00", "#FFFF00", "#7FFF00",
+    "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
+    "#0000FF", "#7F00FF", "#FF00FF", "#FF007F"
+  ];
 
-  let osc = new p5.Oscillator("triangle");
-  osc.freq(freq);
-  osc.amp(0.15, 0.05);
-  osc.pan(pan);
-  osc.start();
-  osc.stop(0.3);
+  for (let i = 0; i < colors.length; i++) {
+    let btn = createButton('');
+    btn.position(10 + i * 34, 5);
+    btn.size(28, 28);
+    btn.style('background-color', colors[i]);
+    btn.style('border-radius', '50%');
+    btn.style('border', '2px solid white');
+    btn.mousePressed(() => {
+      selectedColor = color(colors[i]);
+      document.querySelectorAll('button').forEach(b => b.style.border = '2px solid white');
+      btn.style('border', '3px solid yellow');
+    });
+
+    if (i === 0) {
+      selectedColor = color(colors[i]);
+      btn.style('border', '3px solid yellow');
+    }
+  }
 }
 
 class Dot {
@@ -68,16 +83,15 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = random(30, 80);
-    this.growthSpeed = 0.5;
+    this.maxRadius = random(30, maxSize);
+    this.growthSpeed = 0.4;
+    this.color = selectedColor || color(255);
     this.locked = false;
-    this.color = color(`hsb(${selectedHue}, ${saturationSlider.value()}%, ${brightnessSlider.value()}%)`);
     this.shapePoints = [];
   }
 
   update(others) {
     if (this.locked) return;
-
     let canGrow = true;
     for (let other of others) {
       if (other === this) continue;
@@ -87,7 +101,6 @@ class Dot {
         break;
       }
     }
-
     if (canGrow && this.radius < this.maxRadius) {
       this.radius += this.growthSpeed;
     } else {
@@ -100,10 +113,7 @@ class Dot {
     this.shapePoints = [];
     for (let i = 0; i <= resolution; i++) {
       let angle = TWO_PI * i / resolution;
-      let x = cos(angle);
-      let y = sin(angle);
-      let r = this.radius;
-
+      let x = cos(angle), y = sin(angle), r = this.radius;
       for (let other of dots) {
         if (other === this) continue;
         let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -112,10 +122,7 @@ class Dot {
           r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
         }
       }
-
-      let vx = this.pos.x + x * r;
-      let vy = this.pos.y + y * r;
-      this.shapePoints.push(createVector(vx, vy));
+      this.shapePoints.push(createVector(this.pos.x + x * r, this.pos.y + y * r));
     }
   }
 
@@ -123,16 +130,11 @@ class Dot {
     stroke(this.color);
     beginShape();
     if (this.locked && this.shapePoints.length > 0) {
-      for (let pt of this.shapePoints) {
-        curveVertex(pt.x, pt.y);
-      }
+      for (let pt of this.shapePoints) curveVertex(pt.x, pt.y);
     } else {
       for (let i = 0; i <= resolution; i++) {
         let angle = TWO_PI * i / resolution;
-        let x = cos(angle);
-        let y = sin(angle);
-        let r = this.radius;
-
+        let x = cos(angle), y = sin(angle), r = this.radius;
         for (let other of dots) {
           if (other === this) continue;
           let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -141,10 +143,7 @@ class Dot {
             r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
           }
         }
-
-        let vx = this.pos.x + x * r;
-        let vy = this.pos.y + y * r;
-        curveVertex(vx, vy);
+        curveVertex(this.pos.x + x * r, this.pos.y + y * r);
       }
     }
     endShape(CLOSE);
