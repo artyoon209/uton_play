@@ -6,22 +6,14 @@ let osc;
 let selectedColor = null;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  let cnv = createCanvas(windowWidth, windowHeight);
+  cnv.mousePressed(canvasClicked);
   background(0);
   noFill();
   strokeWeight(2);
 }
 
-function draw() {
-  background(0);
-  for (let i = 0; i < dots.length; i++) {
-    dots[i].update(dots);
-    dots[i].display();
-  }
-}
-
-function mousePressed() {
-  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+function canvasClicked() {
   getAudioContext().resume();
   try {
     if (!osc) {
@@ -30,7 +22,6 @@ function mousePressed() {
       osc.start();
       osc.amp(0);
     }
-
     let freq = random(100, 104);
     let dur = 0.2;
     osc.freq(freq);
@@ -51,6 +42,7 @@ function setColor(hex, btn) {
   document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 }
+window.setColor = setColor;
 
 class Dot {
   constructor(x, y) {
