@@ -2,47 +2,81 @@
 let dots = [];
 let maxSize = 60;
 let resolution = 36;
-let osc;
 let selectedColor = null;
 
+let osc;
+let env;
+let delay;
+
 function setup() {
-  let cnv = createCanvas(windowWidth, windowHeight);
-  cnv.mousePressed(canvasClicked);
-  background(0);
+  createCanvas(windowWidth, windowHeight);
   noFill();
   strokeWeight(2);
+
+  osc = new p5.Oscillator('triangle');
+  env = new p5.Envelope();
+  env.setADSR(0.01, 0.2, 0.2, 0.5);
+  env.setRange(0.1, 0);
+
+  osc.amp(env);
+  osc.start();
+
+  delay = new p5.Delay();
+  delay.process(osc, 0.3, 0.4, 2000); // 딜레이 유지
+
+  createPalette();
 }
 
-function canvasClicked() {
-  getAudioContext().resume();
-  try {
-    if (!osc) {
-      osc = new p5.Oscillator();
-      osc.setType('triangle');
-      osc.start();
-      osc.amp(0);
-    }
-    let freq = random(100, 104);
-    let dur = 0.2;
-    osc.freq(freq);
-    osc.amp(0.2, 0.05);
-    setTimeout(() => {
-      osc.amp(0, 0.3);
-    }, dur * 1000);
-  } catch (e) {
-    console.warn("Audio resume failed", e);
+function draw() {
+  background(0);
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].update(dots);
+    dots[i].display();
   }
+}
+
+function mousePressed() {
+  if (mouseY < 40) return;
+
+  getAudioContext().resume();
+
+  let panValue = map(mouseX, 0, width, -1, 1);
+  let freqValue = map(mouseY, 0, height, 300, 100);
+
+  osc.pan(panValue);   // ✅ 진짜 되는 코드
+  osc.freq(freqValue);
+  env.play();
 
   let inside = dots.some(dot => dist(mouseX, mouseY, dot.pos.x, dot.pos.y) < dot.radius);
   if (!inside) dots.push(new Dot(mouseX, mouseY));
 }
 
-function setColor(hex, btn) {
-  selectedColor = color(hex);
-  document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
+function createPalette() {
+  let colors = [
+    "#FF0000", "#FF7F00", "#FFFF00", "#7FFF00",
+    "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
+    "#0000FF", "#7F00FF", "#FF00FF", "#FF007F"
+  ];
+
+  for (let i = 0; i < colors.length; i++) {
+    let btn = createButton('');
+    btn.position(10 + i * 34, 5);
+    btn.size(28, 28);
+    btn.style('background-color', colors[i]);
+    btn.style('border-radius', '50%');
+    btn.style('border', '2px solid white');
+    btn.mousePressed(() => {
+      selectedColor = color(colors[i]);
+      document.querySelectorAll('button').forEach(b => b.style.border = '2px solid white');
+      btn.style('border', '3px solid yellow');
+    });
+
+    if (i === 0) {
+      selectedColor = color(colors[i]);
+      btn.style('border', '3px solid yellow');
+    }
+  }
 }
-window.setColor = setColor;
 
 class Dot {
   constructor(x, y) {
