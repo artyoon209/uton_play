@@ -2,39 +2,80 @@
 let dots = [];
 let maxSize = 60;
 let resolution = 36;
+let selectedColor = null;
 
-let hues = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-let selectedHue = 0;
-let selectedSaturation = 100;
-let selectedBrightness = 100;
+let osc;
+let env;
+let delay;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  colorMode(HSB, 360, 100, 100);
   noFill();
   strokeWeight(2);
-  setupUI();
+
+  osc = new p5.Oscillator('triangle');
+  env = new p5.Envelope();
+  env.setADSR(0.01, 0.2, 0.2, 0.5);
+  env.setRange(0.1, 0);
+
+  osc.amp(env);
+  osc.start();
+
+  delay = new p5.Delay();
+  delay.process(osc, 0.3, 0.4, 2000); // 딜레이 유지
+
+  createPalette();
 }
 
 function draw() {
   background(0);
-  for (let dot of dots) {
-    dot.update(dots);
-    dot.display();
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].update(dots);
+    dots[i].display();
   }
 }
 
 function mousePressed() {
-  // UI 영역 클릭 방지
-  if (mouseY < 100) return;
+  if (mouseY < 40) return;
 
-  let newDot = new Dot(mouseX, mouseY);
-  let overlapping = false;
-  for (let dot of dots) {
-    let d = dist(dot.pos.x, dot.pos.y, newDot.pos.x, newDot.pos.y);
-    if (d < dot.radius + 5) overlapping = true;
+  getAudioContext().resume();
+
+  let panValue = map(mouseX, 0, width, -1, 1);
+  let freqValue = map(mouseY, 0, height, 300, 100);
+
+  osc.pan(panValue);   // ✅ 진짜 되는 코드
+  osc.freq(freqValue);
+  env.play();
+
+  let inside = dots.some(dot => dist(mouseX, mouseY, dot.pos.x, dot.pos.y) < dot.radius);
+  if (!inside) dots.push(new Dot(mouseX, mouseY));
+}
+
+function createPalette() {
+  let colors = [
+    "#FF0000", "#FF7F00", "#FFFF00", "#7FFF00",
+    "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
+    "#0000FF", "#7F00FF", "#FF00FF", "#FF007F"
+  ];
+
+  for (let i = 0; i < colors.length; i++) {
+    let btn = createButton('');
+    btn.position(10 + i * 34, 5);
+    btn.size(28, 28);
+    btn.style('background-color', colors[i]);
+    btn.style('border-radius', '50%');
+    btn.style('border', '2px solid white');
+    btn.mousePressed(() => {
+      selectedColor = color(colors[i]);
+      document.querySelectorAll('button').forEach(b => b.style.border = '2px solid white');
+      btn.style('border', '3px solid yellow');
+    });
+
+    if (i === 0) {
+      selectedColor = color(colors[i]);
+      btn.style('border', '3px solid yellow');
+    }
   }
-  if (!overlapping) dots.push(newDot);
 }
 
 class Dot {
@@ -42,23 +83,11 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = random(20, maxSize);
+    this.maxRadius = random(30, maxSize);
     this.growthSpeed = 0.4;
-    this.color = color(selectedHue, selectedSaturation, selectedBrightness);
+    this.color = selectedColor || color(255);
     this.locked = false;
     this.shapePoints = [];
-
-    // 위치에 따른 주파수 계산
-    this.freq = map(this.pos.y, 0, height, 600, 200); // 위에서 아래로 갈수록 낮은음
-    this.osc = new p5.Oscillator("sine");
-    this.osc.freq(this.freq);
-    this.osc.amp(0);
-    this.osc.start();
-
-    let pan = map(this.pos.x, 0, width, -1, 1);
-    this.osc.pan(pan);
-    this.osc.amp(0.2, 0.05);
-    setTimeout(() => this.osc.amp(0, 0.5), 200);
   }
 
   update(others) {
@@ -72,7 +101,6 @@ class Dot {
         break;
       }
     }
-
     if (canGrow && this.radius < this.maxRadius) {
       this.radius += this.growthSpeed;
     } else {
@@ -85,9 +113,7 @@ class Dot {
     this.shapePoints = [];
     for (let i = 0; i <= resolution; i++) {
       let angle = TWO_PI * i / resolution;
-      let x = cos(angle);
-      let y = sin(angle);
-      let r = this.radius;
+      let x = cos(angle), y = sin(angle), r = this.radius;
       for (let other of dots) {
         if (other === this) continue;
         let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -96,9 +122,7 @@ class Dot {
           r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
         }
       }
-      let vx = this.pos.x + x * r;
-      let vy = this.pos.y + y * r;
-      this.shapePoints.push(createVector(vx, vy));
+      this.shapePoints.push(createVector(this.pos.x + x * r, this.pos.y + y * r));
     }
   }
 
@@ -110,9 +134,7 @@ class Dot {
     } else {
       for (let i = 0; i <= resolution; i++) {
         let angle = TWO_PI * i / resolution;
-        let x = cos(angle);
-        let y = sin(angle);
-        let r = this.radius;
+        let x = cos(angle), y = sin(angle), r = this.radius;
         for (let other of dots) {
           if (other === this) continue;
           let testPoint = p5.Vector.add(this.pos, createVector(x, y).mult(this.radius));
@@ -121,38 +143,9 @@ class Dot {
             r -= map(this.radius + other.radius - d, 0, this.radius, 0, 8);
           }
         }
-        let vx = this.pos.x + x * r;
-        let vy = this.pos.y + y * r;
-        curveVertex(vx, vy);
+        curveVertex(this.pos.x + x * r, this.pos.y + y * r);
       }
     }
     endShape(CLOSE);
   }
-}
-
-function setupUI() {
-  let palette = createDiv().style('display', 'flex').style('gap', '4px').style('padding', '5px');
-  palette.position(10, 10);
-  for (let i = 0; i < hues.length; i++) {
-    let btn = createButton(' ');
-    btn.style('width', '24px');
-    btn.style('height', '24px');
-    btn.style('border-radius', '50%');
-    btn.style('border', 'none');
-    btn.style('background-color', color(hues[i], 100, 100));
-    btn.mousePressed(() => selectedHue = hues[i]);
-    palette.child(btn);
-  }
-  let sliders = createDiv().style('padding', '6px');
-  sliders.position(10, 50);
-
-  createDiv('Saturation').style('color', '#fff').parent(sliders);
-  let sat = createSlider(10, 100, 100);
-  sat.input(() => selectedSaturation = sat.value());
-  sliders.child(sat);
-
-  createDiv('Brightness').style('color', '#fff').parent(sliders);
-  let bri = createSlider(10, 100, 100);
-  bri.input(() => selectedBrightness = bri.value());
-  sliders.child(bri);
 }
