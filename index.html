@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Color Sound Reaction</title>
+    <title>Color Sound Interaction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
     <style>
       body {
         margin: 0;
@@ -11,26 +13,50 @@
         color: white;
         font-family: sans-serif;
       }
+
       #ui {
         position: absolute;
         top: 10px;
         left: 10px;
         z-index: 10;
       }
+
       .color-btn {
-        width: 20px;
-        height: 20px;
-        margin-right: 4px;
+        width: 24px;
+        height: 24px;
+        margin: 2px;
         border: none;
-        outline: none;
+        outline: 1px solid #444;
         cursor: pointer;
+      }
+
+      .slider-wrapper {
+        margin-top: 5px;
+      }
+
+      label {
+        font-size: 12px;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      input[type="range"] {
+        width: 100px;
       }
     </style>
   </head>
   <body>
-    <div id="ui"></div>
-    <script src="p5.min.js"></script>
-    <script src="p5.sound.min.js"></script>
+    <div id="ui">
+      <div id="colorContainer"></div>
+      <div class="slider-wrapper">
+        <label for="saturationSlider">Saturation</label>
+        <input type="range" id="saturationSlider" min="0" max="100" value="100" />
+      </div>
+      <div class="slider-wrapper">
+        <label for="brightnessSlider">Brightness</label>
+        <input type="range" id="brightnessSlider" min="0" max="100" value="50" />
+      </div>
+    </div>
     <script src="sketch.js"></script>
   </body>
 </html>
