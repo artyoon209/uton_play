@@ -1,16 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>UTON Canvas</title>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
-    <style>
-      body { margin: 0; background: black; overflow: hidden; }
-      canvas { display: block; }
-    </style>
-  </head>
-  <body>
-    <script src="sketch.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Select Dots</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+    canvas { display: block; }
+
+    #colorPalette {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .color-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.1s;
+    }
+
+    .color-btn.selected {
+      border: 3px solid yellow;
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <div id="colorPalette">
+    <button class="color-btn" style="background-color: #ff6464;" onclick="setColor('#ff6464', this)"></button>
+    <button class="color-btn" style="background-color: #ffa8a8;" onclick="setColor('#ffa8a8', this)"></button>
+    <button class="color-btn" style="background-color: #6496ff;" onclick="setColor('#6496ff', this)"></button>
+    <button class="color-btn" style="background-color: #b4d2ff;" onclick="setColor('#b4d2ff', this)"></button>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+  <script src="sketch.js"></script>
+</body>
 </html>
