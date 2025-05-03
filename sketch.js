@@ -1,7 +1,6 @@
-// 반응형 선형 원: 성장 → 반응 → 고정 + 더 밀착된 배치 + 클릭 중첩 방지
+// 반응형 선형 원: 성장 → 반응 → 고정 + 밀착 배치 + 클릭 중첩 방지 + 랜덤 크기 + 좁은 틈 클릭 제한
 
 let dots = [];
-let maxSize = 60;
 let colors;
 let resolution = 36;
 
@@ -28,10 +27,9 @@ function draw() {
 }
 
 function mousePressed() {
-  // 다른 점 안쪽 클릭 방지
   for (let dot of dots) {
     let d = dist(mouseX, mouseY, dot.pos.x, dot.pos.y);
-    if (d < dot.radius) return;
+    if (d < dot.radius + 6) return; // 내부 + 주변 간격 제한 클릭 방지
   }
   dots.push(new Dot(mouseX, mouseY));
 }
@@ -41,7 +39,7 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = maxSize;
+    this.targetRadius = random(20, 60);
     this.growthSpeed = 0.4;
     this.color = random(colors);
     this.locked = false;
@@ -61,7 +59,7 @@ class Dot {
       }
     }
 
-    if (canGrow && this.radius < this.maxRadius) {
+    if (canGrow && this.radius < this.targetRadius) {
       this.radius += this.growthSpeed;
     } else {
       this.locked = true;
@@ -123,7 +121,6 @@ class Dot {
     endShape(CLOSE);
   }
 }
-
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
