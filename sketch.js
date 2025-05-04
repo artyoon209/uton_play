@@ -62,17 +62,17 @@ function isInsideExistingDot(x, y) {
 }
 
 function mousePressed() {
-  if (mouseY < 80 || isInsideExistingDot(mouseX, mouseY)) return;
-  let dot = new Dot(mouseX, mouseY);
-  dots.push(dot);
-  playNote(mouseY, mouseX);
+  if (mouseY > 50) {
+    dots.push(new Dot(mouseX, mouseY));
+    playNote(mouseY, mouseX);
+  }
 }
 
 function touchStarted() {
-  if (touchY < 80 || isInsideExistingDot(touchX, touchY)) return;
-  let dot = new Dot(touchX, touchY);
-  dots.push(dot);
-  playNote(touchY, touchX);
+  if (mouseY > 50) {
+    dots.push(new Dot(mouseX, mouseY));
+    playNote(mouseY, mouseX);
+  }
 }
 
 function playNote(yPos, xPos) {
