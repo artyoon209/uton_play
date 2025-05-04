@@ -1,6 +1,6 @@
 
 let dots = [];
-let maxSize = 60;
+let maxSize = 90;
 let resolution = 36;
 let selectedHue = 0;
 let saturationSlider, brightnessSlider;
@@ -63,6 +63,12 @@ function playNote(yPos, xPos) {
   osc.start();
   osc.amp(0.06, 0.2);
   osc.stop(1.5);
+
+  reverb = new p5.Reverb();
+  osc.disconnect();
+  osc.connect(reverb);
+  reverb.process(osc, 0.3, 0.3);
+
 }
 
 function draw() {
