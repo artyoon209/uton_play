@@ -1,26 +1,21 @@
 
-let osc;
 let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
-let colorButtons = [];
-let currentColor;
-let globalReverb;
 let dots = [];
+let osc;
 
 function setup() {
-  osc = new p5.Oscillator("sine");
-  osc.start();
-  osc.amp(0);
+  createCanvas(3000, 2000);
   userStartAudio();
-  createCanvas(windowWidth, windowHeight);
   background(0);
   noFill();
   strokeWeight(1.5);
-  createColorButtons();
-  globalReverb = new p5.Reverb();
+  osc = new p5.Oscillator("sine");
+  osc.start();
+  osc.amp(0);
 }
 
 function draw() {
-  background(0, 20); // 잔상 효과
+  background(0, 20);
   for (let i = 0; i < dots.length; i++) {
     dots[i].update();
     dots[i].display();
@@ -32,58 +27,36 @@ function draw() {
 
 function mousePressed() {
   if (mouseY > 50) {
-    dots.push(new Dot(mouseX, mouseY, currentColor));
-    playNote(mouseY);
+    dots.push(new Dot(mouseX, mouseY));
+    playNote(mouseY, mouseX);
   }
 }
 
 function touchStarted() {
-  userStartAudio();
   if (mouseY > 50) {
-    dots.push(new Dot(mouseX, mouseY, currentColor));
-    playNote(mouseY);
+    dots.push(new Dot(mouseX, mouseY));
+    playNote(mouseY, mouseX);
   }
 }
 
-function playNote(yPos) {
+function playNote(yPos, xPos) {
+  let pan = map(xPos, 0, width, -1, 1);
   let freqIndex = floor(map(yPos, 0, height, 0, notes.length));
   freqIndex = constrain(freqIndex, 0, notes.length - 1);
   let freq = notes[notes.length - 1 - freqIndex];
-
-  let osc = new p5.Oscillator("sine");
   osc.freq(freq);
-  osc.amp(0);
-  osc.start();
+  osc.pan(pan);
   osc.amp(0.06, 0.2);
-
-  setTimeout(() => {
-    globalReverb.process(osc, 3, 2);
-  }, 30);
-
-  osc.stop(2);
-}
-
-function createColorButtons() {
-  let colors = ["#FF6B6B", "#6BCB77", "#4D96FF", "#FFC75F", "#B28DFF"];
-  let container = select("#colorContainer");
-  colors.forEach((c) => {
-    let btn = createButton("");
-    btn.style("background-color", c);
-    btn.class("color-button");
-    btn.mousePressed(() => currentColor = c);
-    btn.parent(container);
-    colorButtons.push(btn);
-  });
-  currentColor = colors[0];
+  osc.amp(0, 0.3, 1.5);
 }
 
 class Dot {
-  constructor(x, y, c) {
+  constructor(x, y) {
     this.x = x;
     this.y = y;
     this.r = 5;
     this.maxR = 28;
-    this.c = c;
+    this.c = color(255);
   }
 
   update() {
@@ -93,7 +66,6 @@ class Dot {
   }
 
   display() {
-    noFill();
     stroke(this.c);
     ellipse(this.x, this.y, this.r);
   }
@@ -101,7 +73,7 @@ class Dot {
   react(other) {
     let d = dist(this.x, this.y, other.x, other.y);
     if (d < this.r + other.r) {
-      stroke(lerpColor(color(this.c), color(other.c), 0.5));
+      stroke(lerpColor(this.c, other.c, 0.5));
       strokeWeight(2);
       beginShape();
       for (let a = 0; a < TWO_PI; a += 0.2) {
@@ -114,9 +86,4 @@ class Dot {
       endShape(CLOSE);
     }
   }
-}
-
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }

@@ -3,8 +3,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.1, maximum-scale=10.0" />
-  <title>Reactive Drawing</title>
+  <meta name="viewport" content="width=1000, initial-scale=1.0, user-scalable=yes, minimum-scale=0.1, maximum-scale=5.0">
+  <title>Fixed Canvas Zoom</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
   <style>
@@ -12,44 +12,13 @@
       margin: 0;
       padding: 0;
       background: black;
-      overflow: hidden;
-      touch-action: manipulation;
     }
-    #colorContainer {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      gap: 8px;
-      padding: 0 10px;
-    }
-    .color-button {
-      width: 30px;
-      height: 30px;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-    @media (max-width: 600px) {
-      #colorContainer {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .color-button {
-        flex: 1;
-        height: 40px;
-        border-radius: 8px;
-        margin: 0 4px;
-      }
+    canvas {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="colorContainer"></div>
   <script src="sketch.js"></script>
 </body>
 </html>
