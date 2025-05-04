@@ -5,7 +5,20 @@ let resolution = 36;
 let selectedHue = 0;
 let saturationSlider, brightnessSlider;
 
-let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99];
+let notes = [
+  130.81, // C3
+  138.59, // C#3
+  146.83, // D3
+  155.56, // D#3
+  164.81, // E3
+  174.61, // F3
+  185.00, // F#3
+  196.00, // G3
+  207.65, // G#3
+  220.00, // A3
+  233.08, // A#3
+  246.94  // B3
+];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
