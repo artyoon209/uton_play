@@ -21,7 +21,7 @@ let notes = [
 ];
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth * 1.5, windowHeight * 1.5);
   background(0);
   noFill();
   strokeWeight(2);
