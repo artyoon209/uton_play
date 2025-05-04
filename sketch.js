@@ -58,11 +58,11 @@ function playNote(yPos, xPos) {
 
   let osc = new p5.Oscillator("sine");
   osc.freq(freq);
-  osc.amp(0);
+  osc.amp(0.01);
   osc.pan(pan);
   osc.start();
-  osc.amp(0.06, 0.2);
-  osc.stop(2);
+  osc.amp(0.06, 0.5);
+  osc.stop(2.2);
 }
 
 function draw() {
