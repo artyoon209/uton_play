@@ -6,6 +6,18 @@ let selectedHue = 0;
 let saturationSlider, brightnessSlider;
 
 let notes = [
+  65.41,  // C2
+  69.30,  // C#2
+  73.42,  // D2
+  77.78,  // D#2
+  82.41,  // E2
+  87.31,  // F2
+  92.50,  // F#2
+  98.00,  // G2
+  103.83, // G#2
+  110.00, // A2
+  116.54, // A#2
+  123.47, // B2
   130.81, // C3
   138.59, // C#3
   146.83, // D3
@@ -21,7 +33,7 @@ let notes = [
 ];
 
 function setup() {
-  createCanvas(windowWidth * 1.5, windowHeight * 1.5);
+  createCanvas(windowWidth * 2, windowHeight * 2);
   background(0);
   noFill();
   strokeWeight(2);
