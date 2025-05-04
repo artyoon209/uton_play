@@ -1,65 +1,5 @@
 
 let dots = [];
-let maxSize = 60;
-let resolution = 36;
-let selectedHue = 0;
-let saturationSlider, brightnessSlider;
-
-let notes = [
-  65.41,   // C2
-  73.42,   // D2
-  82.41,   // E2
-  87.31,   // F2
-  98.00,   // G2
-  110.00,  // A2
-  123.47,  // B2
-  130.81,  // C3
-  146.83,  // D3
-  164.81,  // E3
-  174.61,  // F3
-  196.00,  // G3
-  220.00,  // A3
-  246.94,  // B3
-  261.63,  // C4
-  293.66,  // D4
-  329.63,  // E4
-  349.23,  // F4
-  392.00,  // G4
-  440.00,  // A4
-  493.88,  // B4
-  523.25,  // C5
-  587.33,  // D5
-  659.25   // E5
-];
-
-function setup() {
-  createCanvas(windowWidth * 2, windowHeight * 2);
-  background(0);
-  noFill();
-  strokeWeight(2);
-  createColorButtons();
-  saturationSlider = select("#saturationSlider");
-  brightnessSlider = select("#brightnessSlider");
-}
-
-function createColorButtons() {
-  let container = select("#colorContainer");
-  for (let i = 0; i < 12; i++) {
-    let btn = createButton("");
-    btn.class("color-btn");
-    btn.style("background-color", color(`hsl(${i * 30}, 100%, 50%)`));
-    btn.mousePressed(() => selectedHue = i * 30);
-    btn.parent(container);
-  }
-}
-
-function isInsideExistingDot(x, y) {
-  for (let d of dots) {
-    let distance = dist(x, y, d.pos.x, d.pos.y);
-    if (distance < d.radius) return true;
-  }
-  return false;
-}
 
 function mousePressed() {
   if (mouseY > 50) {
@@ -73,6 +13,7 @@ function touchStarted() {
     dots.push(new Dot(mouseX, mouseY));
     playNote(mouseY, mouseX);
   }
+}
 }
 
 function playNote(yPos, xPos) {
