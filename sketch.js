@@ -5,35 +5,10 @@ let resolution = 36;
 let selectedHue = 0;
 let saturationSlider, brightnessSlider;
 
-let notes = [
-  65.41,   // C2
-  73.42,   // D2
-  82.41,   // E2
-  87.31,   // F2
-  98.00,   // G2
-  110.00,  // A2
-  123.47,  // B2
-  130.81,  // C3
-  146.83,  // D3
-  164.81,  // E3
-  174.61,  // F3
-  196.00,  // G3
-  220.00,  // A3
-  246.94,  // B3
-  261.63,  // C4
-  293.66,  // D4
-  329.63,  // E4
-  349.23,  // F4
-  392.00,  // G4
-  440.00,  // A4
-  493.88,  // B4
-  523.25,  // C5
-  587.33,  // D5
-  659.25   // E5
-];
+let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99];
 
 function setup() {
-  createCanvas(windowWidth * 2, windowHeight * 2);
+  createCanvas(windowWidth, windowHeight);
   background(0);
   noFill();
   strokeWeight(2);
@@ -77,20 +52,25 @@ function touchStarted() {
 
 function playNote(yPos, xPos) {
   let pan = map(xPos, 0, width, -1, 1);
-  let step = height / notes.length;
-  let freqIndex = constrain(floor(yPos / step), 0, notes.length - 1);
+  let freqIndex = floor(map(yPos, 0, height, 0, notes.length));
+  freqIndex = constrain(freqIndex, 0, notes.length - 1);
   let freq = notes[notes.length - 1 - freqIndex];
 
-  let osc = new p5.Oscillator('sine');
+  let osc = new p5.Oscillator("sine");
   osc.freq(freq);
+  osc.amp(0);
   osc.pan(pan);
-
-  let env = new p5.Envelope();
-  env.setADSR(0.05, 0.3, 0.0, 0.6);  // attack, decay, sustain, release
-  env.setRange(0.05, 0);             // max amp, min amp
-
   osc.start();
-  env.play(osc, 0, 0.05);
+  osc.amp(0.06, 0.2);
+  osc.stop(2);
+}
+
+function draw() {
+  background(0);
+  for (let d of dots) {
+    d.update(dots);
+    d.display();
+  }
 }
 
 class Dot {
