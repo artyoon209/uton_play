@@ -77,25 +77,20 @@ function touchStarted() {
 
 function playNote(yPos, xPos) {
   let pan = map(xPos, 0, width, -1, 1);
-  let freqIndex = floor(map(yPos, 0, height, 0, notes.length));
-  freqIndex = constrain(freqIndex, 0, notes.length - 1);
+  let step = height / notes.length;
+  let freqIndex = constrain(floor(yPos / step), 0, notes.length - 1);
   let freq = notes[notes.length - 1 - freqIndex];
 
-  let osc = new p5.Oscillator("sine");
+  let osc = new p5.Oscillator('sine');
   osc.freq(freq);
-  osc.amp(0);
   osc.pan(pan);
-  osc.start();
-  osc.amp(0.06, 0.2);
-  osc.stop(2);
-}
 
-function draw() {
-  background(0);
-  for (let d of dots) {
-    d.update(dots);
-    d.display();
-  }
+  let env = new p5.Envelope();
+  env.setADSR(0.05, 0.3, 0.0, 0.6);  // attack, decay, sustain, release
+  env.setRange(0.05, 0);             // max amp, min amp
+
+  osc.start();
+  env.play(osc, 0, 0.05);
 }
 
 class Dot {
