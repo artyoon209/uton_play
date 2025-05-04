@@ -62,7 +62,7 @@ function playNote(yPos, xPos) {
   osc.pan(pan);
   osc.start();
   osc.amp(0.06, 0.2);
-  osc.stop(1);
+  osc.stop(1.5);
 }
 
 function draw() {
@@ -78,8 +78,8 @@ class Dot {
     this.pos = createVector(x, y);
     this.baseRadius = 5;
     this.radius = this.baseRadius;
-    this.maxRadius = random(30, 80);
-    this.growthSpeed = 0.5;
+    this.maxRadius = random(30, 70);
+    this.growthSpeed = 1;
     this.locked = false;
     this.color = color(`hsb(${selectedHue}, ${saturationSlider.value()}%, ${brightnessSlider.value()}%)`);
     this.shapePoints = [];
